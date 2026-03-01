@@ -1,6 +1,6 @@
 import Transaction from '../models/transaction.js';
 import redisClient from '../db/redis.js';
-import { Op } from 'sequelize';
+import {checkExtraKeys, checkMissingKeys, validateAmount, validateDescription, validateType, validateCategoryId, validateUserId, validateCategoryExists, validateUserExists } from '../utils/transactionValidators.js';
 
 // GET /api/transactions
 export const getTransactions = async (req, res) => {
@@ -33,70 +33,56 @@ export const getTransactions = async (req, res) => {
 export const createTransaction = async (req, res) => {
   try {
     const { id, role } = req.user;
-    const { amount, description, type } = req.body;
+    const body = req.body;
 
-    /* =========================
-       1️⃣ Check Missing Fields
-    ========================= */
+    // Allowed and required keys
+    const allowedKeys = ["amount", "description", "type", "categoryId", "userId"];
+    const requiredKeys = ["amount", "description", "type"];
 
-    const missingFields = [];
+    // Check for extra keys
+    let error = checkExtraKeys(body, allowedKeys);
+    if (error) return res.status(400).json({ message: error });
 
-    if (amount === undefined) missingFields.push("amount");
-    if (type === undefined) missingFields.push("type");
-    if (description === undefined) missingFields.push("description");
+    // Check for missing required keys
+    error = checkMissingKeys(body, requiredKeys);
+    if (error) return res.status(400).json({ message: error });
 
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        message: `${missingFields.join(" and ")} ${
-          missingFields.length > 1 ? "are" : "is"
-        } missing`,
-      });
+    // Validate individual values
+    error = validateAmount(body.amount);
+    if (error) return res.status(400).json({ message: error });
+
+    error = validateDescription(body.description);
+    if (error) return res.status(400).json({ message: error });
+
+    error = validateType(body.type);
+    if (error) return res.status(400).json({ message: error });
+
+    error = validateCategoryId(body.categoryId);
+    if (error) return res.status(400).json({ message: error });
+
+    if (body.categoryId) {
+      error = await validateCategoryExists(body.categoryId);
+      if (error) return res.status(400).json({ message: error });
     }
 
-     /* =========================
-       2️⃣ Validate Amount
-    ========================= */
+    error = validateUserId(body.userId, id, role);
+    if (error) return res.status(400).json({ message: error });
 
-    if (typeof amount !== "number" || isNaN(amount) || amount <= 0) {
-      return res.status(400).json({
-        message: "Amount must be a number greater than 0",
-      });
+    if (body.userId) {
+      error = await validateUserExists(body.userId, role);
+      if (error) return res.status(400).json({ message: error });
     }
 
-    /* =========================
-       3️⃣ Validate Type
-    ========================= */
+    // Determine the target user
+    const targetUserId = role === "admin" && body.userId ? body.userId : id;
 
-    const allowedTypes = ["income", "expense"];
-
-    if (!allowedTypes.includes(type)) {
-      return res.status(400).json({
-        message: "Type must be either 'income' or 'expense'",
-      });
-    }
-
-    /* =========================
-       4️⃣ Validate Description
-    ========================= */
-
-    if (typeof description !== "string" || description.trim() === "") {
-      return res.status(400).json({
-        message: "Description must be a non-empty string",
-      });
-    }
-
-     /* =========================
-       5️⃣ Create Transaction
-    ========================= */
-
-    const targetUserId = role === "admin" && userId ? userId : id;
-
+    // Create the transaction
     const transaction = await Transaction.create({
-      amount,
-      description,
-      type,
-      categoryId: categoryId || null,
-      userId: targetUserId,
+      amount: body.amount,
+      description: body.description,
+      type: body.type.toLowerCase(),
+      categoryId: body.categoryId || null,
+      userId: targetUserId
     });
 
     // Invalidate analytics cache
@@ -105,8 +91,8 @@ export const createTransaction = async (req, res) => {
 
     res.status(201).json(transaction);
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -116,67 +102,84 @@ export const createTransaction = async (req, res) => {
 ========================= */
 export const updateTransaction = async (req, res) => {
   try {
-    const { id: userId, role } = req.user;
-    const { id } = req.params;
+    const { id: loggedInUserId, role } = req.user;
+    const { id: transactionId } = req.params;
 
-    const transaction = await Transaction.findByPk(id);
+    const transaction = await Transaction.findByPk(transactionId);
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
     // Role & Ownership Check
-    if (role !== 'admin' && transaction.userId !== userId) {
+    if (role !== 'admin' && transaction.userId !== loggedInUserId) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    // Allowed Fields
-    const allowedFields = ['amount', 'description', 'type', 'categoryId'];
-    const updates = {};
+    // Allowed fields for update
+    const allowedFields = ['amount', 'description', 'type', 'categoryId', 'userId'];
 
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
+    // Check for extra keys
+    const extraKeysError = checkExtraKeys(req.body, allowedFields);
+    if (extraKeysError) return res.status(400).json({ message: extraKeysError });
+
+    // Build updates object only with allowed fields provided
+    const updates = {};
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
     });
 
-    // Validate at least one field
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ message: 'No valid fields provided for update' });
     }
 
-    // Field Validations
+    // Modular validations
     if (updates.amount !== undefined) {
-      if (typeof updates.amount !== 'number' || updates.amount <= 0) {
-        return res.status(400).json({ message: 'Amount must be a positive number' });
-      }
+      const amountError = validateAmount(updates.amount);
+      if (amountError) return res.status(400).json({ message: amountError });
+    }
+
+    if (updates.description !== undefined) {
+      const descriptionError = validateDescription(updates.description);
+      if (descriptionError) return res.status(400).json({ message: descriptionError });
     }
 
     if (updates.type !== undefined) {
-      const allowedTypes = ['income', 'expense'];
-      if (!allowedTypes.includes(updates.type)) {
-        return res.status(400).json({ message: 'Invalid transaction type' });
+      const typeError = validateType(updates.type);
+      if (typeError) return res.status(400).json({ message: typeError });
+      updates.type = updates.type.toLowerCase(); // normalize type
+    }
+
+    if (updates.categoryId !== undefined) {
+      if (updates.categoryId === "" || updates.categoryId === null) {
+        updates.categoryId = null;
+      }
+      else {
+        const categoryIdError = validateCategoryId(updates.categoryId);
+        if (categoryIdError) return res.status(400).json({ message: categoryIdError });
+
+        const categoryExistsError = await validateCategoryExists(updates.categoryId);
+        if (categoryExistsError) return res.status(400).json({ message: categoryExistsError });
       }
     }
 
-    // Optional: Validate category existence
-    if (updates.categoryId !== undefined) {
-      const category = await Category.findByPk(updates.categoryId);
-      if (!category) {
-        return res.status(400).json({ message: 'Invalid categoryId' });
-      }
+    if (updates.userId !== undefined) {
+      const userIdError = validateUserId(updates.userId, loggedInUserId, role);
+      if (userIdError) return res.status(400).json({ message: userIdError });
+      // Optional: check if userId exists in DB (admin only)
+      const userExistsError = await validateUserExists(updates.userId, role);
+      if (userExistsError) return res.status(400).json({ message: userExistsError });
     }
 
     await transaction.update(updates);
 
-    // Cache Invalidation
+    // Invalidate analytics cache
     await redisClient.del(`analytics:${transaction.userId}`);
     await redisClient.del(`analytics:admin`);
 
     return res.json({
       message: 'Transaction updated successfully',
-      transaction
+      transaction,
     });
-
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error' });
@@ -192,7 +195,7 @@ export const deleteTransaction = async (req, res) => {
     const { id } = req.params;
 
     const transaction = await Transaction.findByPk(id);
-    if (!transaction) return res.status(404).json({ message: 'Not found' });
+    if (!transaction) return res.status(404).json({ message: 'Transaction Not found' });
 
     if (role !== 'admin' && transaction.userId !== userId) {
       return res.status(403).json({ message: 'Access denied' });
