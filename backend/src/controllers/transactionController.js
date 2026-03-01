@@ -1,5 +1,6 @@
 import Transaction from '../models/transaction.js';
 import redisClient from '../db/redis.js';
+import { Op } from 'sequelize';
 import {checkExtraKeys, checkMissingKeys, validateAmount, validateDescription, validateType, validateCategoryId, validateUserId, validateCategoryExists, validateUserExists } from '../utils/transactionValidators.js';
 
 // GET /api/transactions
@@ -210,5 +211,120 @@ export const deleteTransaction = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const filterTransactions = async (req, res) => {
+  try {
+    const { id, role } = req.user;
+
+    let { category, type, minAmount, maxAmount, page, limit } = req.query;
+
+    page = page ? parseInt(page) : 1;
+    limit = limit ? parseInt(limit) : 10;
+
+    if (isNaN(page) || page < 1) page = 1;
+    if (isNaN(limit) || limit < 1) limit = 10;
+    if (limit > 100) limit = 100;
+
+    const offset = (page - 1) * limit;
+
+    if (type) type = type.trim().toLowerCase();
+    if (category) category = category.trim();
+    if (minAmount) minAmount = minAmount.trim();
+    if (maxAmount) maxAmount = maxAmount.trim();
+
+    const ALLOWED_TYPES = ['income', 'expense'];
+
+    if (type && !ALLOWED_TYPES.includes(type)) {
+      return res.status(400).json({
+        message: 'Invalid transaction type. Must be income or expense'
+      });
+    }
+
+    if (minAmount && isNaN(minAmount)) {
+      return res.status(400).json({ message: 'minAmount must be a number' });
+    }
+
+    if (maxAmount && isNaN(maxAmount)) {
+      return res.status(400).json({ message: 'maxAmount must be a number' });
+    }
+
+    if (minAmount && Number(minAmount) < 0) {
+      return res.status(400).json({ message: 'minAmount cannot be negative' });
+    }
+
+    if (maxAmount && Number(maxAmount) < 0) {
+      return res.status(400).json({ message: 'maxAmount cannot be negative' });
+    }
+
+    if (minAmount && maxAmount && Number(minAmount) > Number(maxAmount)) {
+      return res.status(400).json({
+        message: 'minAmount cannot be greater than maxAmount'
+      });
+    }
+
+    // Optional UUID format validation
+    if (category && category !== 'uncategorized' && category !== 'null') {
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+      if (!uuidRegex.test(category)) {
+        return res.status(400).json({
+          message: 'Invalid category UUID format'
+        });
+      }
+    }
+
+    let where = {};
+    if (role !== 'admin') {
+      where.userId = id;
+    }
+
+    // Category filter
+    if (category) {
+      if (
+        category.toLowerCase() === 'uncategorized' ||
+        category === 'null'
+      ) {
+        where.categoryId = null;
+      } else {
+        where.categoryId = category;
+      }
+    }
+
+    if (type) {
+      where.type = type;
+    }
+
+    if (minAmount || maxAmount) {
+      where.amount = {};
+
+      if (minAmount) where.amount[Op.gte] = Number(minAmount);
+      if (maxAmount) where.amount[Op.lte] = Number(maxAmount);
+    }
+
+    // 🚀 No include here
+    const { count, rows } = await Transaction.findAndCountAll({
+      where,
+      order: [['created_at', 'DESC']],
+      limit,
+      offset
+    });
+
+    return res.status(200).json({
+      totalRecords: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      pageSize: limit,
+      data: rows
+    });
+
+  } catch (error) {
+    console.error('Filter Transactions Error:', error);
+
+    return res.status(500).json({
+      message: 'Server Error'
+    });
   }
 };
