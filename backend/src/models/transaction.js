@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../db/index.js';
 import User from './user.js';
+import Category from './category.js';
 
 const Transaction = sequelize.define('Transaction', {
   id: {
@@ -9,23 +10,28 @@ const Transaction = sequelize.define('Transaction', {
     primaryKey: true
   },
   amount: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(12,2),
     allowNull: false
   },
   description: {
-    type: DataTypes.STRING
+    type: DataTypes.TEXT
   },
   type: {
-    type: DataTypes.STRING, // income or expense
+    type: DataTypes.STRING,
     allowNull: false
+  },
+  userId: {
+    type: DataTypes.UUID,
+    field: "user_id"   // 👈 maps to DB column
+  },
+  categoryId: {
+    type: DataTypes.UUID,
+    field: "category_id"
   }
 }, {
-  tableName: 'transactions',
-  timestamps: true
+  tableName: "transactions",
+  timestamps: false,
+  underscored: true
 });
-
-// Association
-Transaction.belongsTo(User, { foreignKey: 'userId' });
-User.hasMany(Transaction, { foreignKey: 'userId' });
 
 export default Transaction;
