@@ -123,6 +123,15 @@ Authorization: Bearer <your_token>
 
 ---
 
+## 📖 API Documentation
+
+Interactive Swagger UI is available at:
+```
+http://localhost:5000/api-docs
+```
+
+> Run `npm run dev` to auto-generate the latest docs before viewing.
+
 ## 📡 API Overview
 
 | Resource | Base Path |
