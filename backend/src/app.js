@@ -9,16 +9,20 @@ import transactionRoutes from "./routes/transactionRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import userRoutes from './routes/usersRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+const swaggerDocument = JSON.parse(fs.readFileSync('./src/swagger.json', 'utf8'));
 
 dotenv.config();
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
+
 // Routes   
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authLimiter, authRoutes);
