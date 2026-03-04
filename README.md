@@ -30,8 +30,8 @@ A RESTful backend API for managing users, categories, and financial transactions
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO/backend
+git clone https://github.com/chshiv/Personal-Finance-Tracker.git
+cd Personal-Finance-Tracker/backend
 ```
 
 ### 2. Configure Environment Variables
