@@ -1,0 +1,119 @@
+/* Fix overflow issue */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Auth page layout — scoped, won't leak */
+.auth-page {
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-container {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+  width: 100%;
+  max-width: 400px;
+
+  padding: 2rem;
+  margin: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.auth-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.auth-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-container select {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.auth-container input,
+.auth-container button {
+  width: 100%;
+}
+
+.auth-container input {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.auth-container input:focus {
+  border-color: #4e54c8;
+  box-shadow: 0 0 5px rgba(78, 84, 200, 0.5);
+  outline: none;
+}
+
+.auth-container button {
+  padding: 0.75rem;
+  background-color: #4e54c8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-container button:hover {
+  background-color: #3b3fc1;
+}
+
+.auth-container .link {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.auth-container .link a {
+  color: #4e54c8;
+  text-decoration: none;
+}
+
+.auth-container .link a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  .auth-container {
+    padding: 1.5rem;
+  }
+
+  .auth-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .auth-container input,
+  .auth-container button {
+    font-size: 0.95rem;
+  }
+}

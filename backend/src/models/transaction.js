@@ -34,4 +34,14 @@ const Transaction = sequelize.define('Transaction', {
   underscored: true
 });
 
+Transaction.belongsTo(Category, {
+  foreignKey: "categoryId",
+  as: "category"
+});
+
+Transaction.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user"
+});
+
 export default Transaction;

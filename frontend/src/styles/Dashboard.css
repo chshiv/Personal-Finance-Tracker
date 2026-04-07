@@ -1,0 +1,343 @@
+/* Full page */
+.dashboard-container {
+    width: 100%;
+    min-height: 100vh;
+    background: #f4f6f8;
+  }
+
+  .dashboard-container {
+    background: var(--bg);
+  }
+  
+  /* Content wrapper */
+  .dashboard-content {
+    padding: 20px;
+  }
+  
+  /* Filter */
+  .filter-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .filter-box label {
+    font-weight: 600;
+    background-color: #907BC4;
+    border-radius: 6px;
+    padding: 8px;
+    color: aliceblue;
+  }
+  
+  .filter-box select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .filter-box select:focus {
+    outline: none;
+    border-color: #907BC4;
+  }
+  
+  /* Cards */
+  .cards {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    flex: 1;
+    min-width: 0px;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .income {
+    background: #4caf50;
+  }
+  
+  .expense {
+    background: #f44336;
+  }
+  
+  .balance {
+    background: #2196f3;
+  }
+
+  .loading-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    font-size: 18px;
+    color: #666;
+  }
+  
+  /* Section */
+  .section {
+    /* margin-top: 30px; */
+    background: white;
+    /* padding: 20px; */
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section {
+    background: var(--card);
+  }
+  
+  /* Transactions */
+
+  /* ===== TRANSACTION FORM ===== */
+
+.transaction-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  width: 100%;
+}
+
+/* Inputs */
+.transaction-form input,
+.transaction-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Button full width */
+.transaction-form button {
+  grid-column: span 2;
+  background: #907BC4;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.feature-btn{
+  padding: 6px 12px;
+  background-color: #7c75e3 !important;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.category-form .feature-btn {
+  background-color: #7c75e3;
+}
+
+.transaction-form button:hover {
+  background: #7a66b0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .transaction-form {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-form button {
+    grid-column: span 1;
+  }
+}
+  /* Inline edit inputs */
+.transactions input,
+.transactions select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Save button */
+.transactions button:first-child {
+  background: #4caf50;
+  color: white;
+}
+
+/* Cancel button */
+.transactions button:nth-child(2) {
+  background: #777;
+  color: white;
+}
+
+/* Delete button */
+.transactions button:last-child {
+  background: #f44336;
+  color: white;
+}
+
+
+  .transactions {
+    overflow-x: auto;
+  }
+  
+  .transactions ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .transactions li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .transaction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px;   /* smaller looks better */
+  }
+
+  .transactions table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .transactions th {
+    background: #907BC4;
+    color: white;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .transactions td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .transactions tr:hover {
+    background: #f9f9f9;
+  }
+  
+  /* Buttons */
+  .transactions button {
+    padding: 5px 10px;
+    margin-right: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .transactions button:first-child {
+    background: #2196f3; /* edit */
+    color: white;
+  }
+  
+  .transactions button:last-child {
+    background: #f44336; /* delete */
+    color: white;
+  }
+
+  .form-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start; /* align left */
+  }
+  
+  /* 📱 Responsive */
+  @media (max-width: 768px) {
+    .cards {
+      flex-direction: column;
+    }
+  
+    .card {
+      width: 100%;
+    }
+  }
+
+
+  /* ===== CATEGORY SECTION ===== */
+
+.category-form{
+  margin-bottom: 50px;
+}
+
+.categories {
+  margin-top: 30px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
+.categories {
+  background: var(--bg);
+}
+
+
+/* Table */
+.categories table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.categories th,
+.categories td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Header */
+.categories th {
+  background: #f4f4f4;
+}
+
+/* Buttons */
+.categories button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Reuse buttons */
+.btn-save {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-cancel {
+  background: #777;
+  color: white;
+}
+
+/* Delete */
+.categories button:last-child {
+  background: #f44336;
+  color: white;
+}
+
+/* Input */
+.categories input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px
+}
+
+/* Highlight editing row */
+.editing-row {
+  background: #fff3cd;
+}
