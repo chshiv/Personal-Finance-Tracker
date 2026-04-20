@@ -3,7 +3,7 @@ name: SonarQube Code Quality Check
 on:
   push:
     branches:
-      - "**"          # triggers on push to ANY branch
+      - "**"
   pull_request:
     branches:
       - main
@@ -18,20 +18,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0    # Full history needed for better analysis
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install dependencies
+      # ── BACKEND ────────────────────────────────────────────
+      - name: Install backend dependencies
+        working-directory: ./backend
         run: npm install
 
-      - name: Run tests with coverage
+      - name: Run backend tests with coverage
+        working-directory: ./backend
         run: npm test -- --coverage --coverageReporters=lcov
-        continue-on-error: true   # Don't fail pipeline if tests fail
+        continue-on-error: true
 
+      # ── FRONTEND ───────────────────────────────────────────
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Run frontend tests with coverage
+        working-directory: ./frontend
+        run: npm test -- --coverage --coverageReporters=lcov --watchAll=false
+        continue-on-error: true
+
+      # ── SONARQUBE SCAN (scans entire repo using .properties) 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
