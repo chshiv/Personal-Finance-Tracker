@@ -1,5 +1,5 @@
 // pages/Dashboard.jsx
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Navbar from "../components/Navbar";
@@ -25,7 +25,6 @@ function Dashboard() {
 
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedUser, setSelectedUser] = useState("all");
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
 

@@ -52,8 +52,12 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const value = useMemo(() => {   //optimization for context as authcontext re-render every time because component using it rerender
+    return { user, login, logout, loading };
+  }, [user, loading]);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

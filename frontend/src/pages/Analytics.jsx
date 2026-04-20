@@ -16,6 +16,21 @@ import "../styles/Dashboard.css";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
+function InnerLegend() {
+  return (
+    <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+        <span style={{ width: 12, height: 12, backgroundColor: "#00C49F" }} />
+        <span>Income</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+        <span style={{ width: 12, height: 12, backgroundColor: "#FF4D4F" }} />
+        <span>Expense</span>
+      </div>
+    </div>
+  );
+}
+
 function Analytics() {
 
   const { user, loading: authLoading } = useAuth();
@@ -141,7 +156,7 @@ function Analytics() {
                   label={({ value }) => formatNumber(value)}
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value) => formatNumber(value)} />
@@ -162,24 +177,12 @@ function Analytics() {
                 <YAxis width={80} tickFormatter={formatNumber} />
                 <Tooltip formatter={(value) => formatNumber(value)} />
 
-                <Legend content={() => (
-                  <div style={{ display: "flex", gap: "20px", justifyContent: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      <span style={{ width: 12, height: 12, backgroundColor: "#00C49F" }} />
-                      <span>Income</span>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      <span style={{ width: 12, height: 12, backgroundColor: "#FF4D4F" }} />
-                      <span>Expense</span>
-                    </div>
-                  </div>
-                )} />
+                <Legend content={<CustomLegend />} />
 
                 <Bar dataKey="amount">
-                  {incomeExpenseData.map((entry, index) => (
+                  {incomeExpenseData.map((entry) => (
                     <Cell
-                      key={index}
+                      key={`${entry.type}-${entry.amount}`}
                       fill={entry.type === "Income" ? "#00C49F" : "#FF4D4F"}
                     />
                   ))}

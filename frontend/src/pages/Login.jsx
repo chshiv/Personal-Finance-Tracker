@@ -47,7 +47,6 @@ function Login() {
       );
 
       setToast({ message: "Login successful", type: "success" });
-      // navigate("/dashboard", { replace: true });
 
     } catch (err) {
       setToast({
