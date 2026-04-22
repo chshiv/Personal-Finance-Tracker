@@ -20,11 +20,11 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-// Routes   
+// Routes
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/auth',authLimiter, authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use("/api/transactions", transactionLimiter, transactionRoutes);
 app.use("/api/analytics", analyticsLimiter, analyticsRoutes);
 
