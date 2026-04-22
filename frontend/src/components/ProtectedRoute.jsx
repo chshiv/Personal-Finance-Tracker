@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth();
 
-  // ⛔ Wait until auth loads
+  //  Wait until auth loads
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -14,7 +14,7 @@ function ProtectedRoute({ children, roles }) {
     return <Navigate to="/login" replace />;
   }
 
-  // ❌ Role not allowed
+  //  Role not allowed
   if (roles && !roles.includes(user.role)) {
     return <Navigate to="/dashboard" replace />;
   }

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { loginUser } from "../api/authApi";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Auth.css";
-import PasswordInput from "../utils/passwordInput";
+import PasswordInput from "../utils/PasswordInput";
 import Toast from "../components/Toast";
 import useAuth from "../hooks/useAuth";
 

@@ -3,7 +3,7 @@ import { registerUser } from "../api/authApi";
 import { useNavigate, Link } from "react-router-dom";
 import Toast from "../components/Toast"
 import "../styles/Auth.css";
-import PasswordInput from "../utils/passwordInput";
+import PasswordInput from "../utils/PasswordInput";
 
 function Register() {
 
