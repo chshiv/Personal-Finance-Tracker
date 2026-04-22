@@ -16,7 +16,10 @@ const swaggerDocument = JSON.parse(fs.readFileSync('./src/swagger.json', 'utf8')
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "https://personal-finance-tracker-h1rv.vercel.app/",
+  credentials: true
+}));
 app.use(helmet());
 app.use(express.json());
 
