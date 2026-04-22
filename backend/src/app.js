@@ -17,7 +17,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: "https://personal-finance-tracker-h1rv.vercel.app/",
+  origin: "https://personal-finance-tracker-h1rv.vercel.app",
   credentials: true
 }));
 app.use(helmet());
